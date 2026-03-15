@@ -20,27 +20,35 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Allow requests from Vite dev server and production build
+# Allowed origins (local development + deployed frontend)
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "https://ai-interview-coach-7wh8.onrender.com",  # replace with your actual Vercel URL
+]
+
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Mount routers with URL prefixes
-app.include_router(interview_router, prefix="/interview")
-app.include_router(evaluation_router, prefix="/evaluation")
+app.include_router(interview_router, prefix="/interview", tags=["Interview"])
+app.include_router(evaluation_router, prefix="/evaluation", tags=["Evaluation"])
 
 
 @app.get("/", tags=["health"])
 async def root():
-    return {"message": "AI Interview Coach API", "status": "running", "docs": "/docs"}
+    return {
+        "message": "AI Interview Coach API",
+        "status": "running",
+        "docs": "/docs",
+    }
 
 
 @app.get("/health", tags=["health"])
@@ -50,4 +58,4 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)

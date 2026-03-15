@@ -104,7 +104,12 @@ cp .env.example .env
 
 Edit `.env`:
 ```env
+
+Use the key what ever You  have 
+
 OPENAI_API_KEY=sk-your-key-here
+GROQ_API_KEY=
+GEMINI_API_KEY=
 
 # Only needed for LiveKit voice rooms (optional):
 LIVEKIT_API_KEY=APIxxxxxxxx
