@@ -236,8 +236,9 @@ export default function Home() {
         </div>
 
         {/* Footer note */}
-        <p className="text-center text-white/20 text-xs mt-6">
-          Powered by OpenAI GPT-4o · 5 questions per session
+        <p className="text-center text-white/40 text-xs mt-6">
+          Successfully converted coffee into code (and tokens).
+          5 questions per session (because even AIs need a nap).
         </p>
       </div>
     </div>
