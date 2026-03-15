@@ -5,8 +5,10 @@
 
 import axios from 'axios'
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000',            // relative URLs — Vite proxy handles routing in dev
+  baseURL: apiUrl,            // relative URLs — Vite proxy handles routing in dev
   timeout: 60_000,        // 60s timeout for slow AI responses
   headers: { 'Content-Type': 'application/json' },
 })
