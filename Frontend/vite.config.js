@@ -9,6 +9,7 @@ export default defineConfig({
     proxy: {
       '/interview': 'http://localhost:8000',
       '/evaluation': 'http://localhost:8000',
+      '/resume': 'http://localhost:8000',
     },
   },
 })

@@ -82,4 +82,50 @@ export async function getLiveKitToken(room_name, participant_name) {
   return data
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Resume API
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Upload a resume file (PDF or DOCX) and extract its text.
+ * @param {File} file - Browser File object
+ * @returns {Promise<{ text, filename, char_count, skills_preview }>}
+ */
+export async function uploadResume(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const { data } = await api.post('/resume/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 30_000,
+  })
+  return data
+}
+
+/**
+ * Analyze extracted resume text with AI.
+ * @param {string} text - Plain text extracted from the resume
+ * @returns {Promise<{ score, skills, experience_level, strengths, missing_skills, improvements }>}
+ */
+export async function analyzeResume(text) {
+  const { data } = await api.post('/resume/analyze', { text })
+  return data
+}
+
+/**
+ * Generate interview questions tailored to resume skills.
+ * @param {object} params - { skills, experience_level, difficulty, num_questions }
+ * @returns {Promise<{ session_id, questions, role }>}
+ */
+export async function generateResumeQuestions({ skills, projects, experience_level, difficulty, num_questions = 5 }) {
+  const { data } = await api.post('/resume/questions', {
+    skills,
+    projects,
+    experience_level,
+    difficulty,
+    num_questions,
+  })
+  return data
+}
+
 export default api

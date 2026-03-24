@@ -11,6 +11,7 @@ load_dotenv()
 
 from routes.interview import router as interview_router
 from routes.evaluation import router as evaluation_router
+from routes.resume import router as resume_router
 
 app = FastAPI(
     title="AI Interview Coach API",
@@ -40,6 +41,7 @@ app.add_middleware(
 # Mount routers with URL prefixes
 app.include_router(interview_router, prefix="/interview", tags=["Interview"])
 app.include_router(evaluation_router, prefix="/evaluation", tags=["Evaluation"])
+app.include_router(resume_router, prefix="/resume", tags=["Resume"])
 
 
 @app.get("/", tags=["health"])

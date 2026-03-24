@@ -60,15 +60,25 @@ export default function Home() {
   const [difficulty, setDifficulty] = useState('Medium')
   const [interviewType, setInterviewType] = useState('text')
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+
   function handleStart() {
-    navigate('/interview', {
-      state: { role, difficulty, interviewType },
-    })
+    if (role === "") {
+      alert("role is required")
+    }
+    else {
+      navigate('/interview', {
+        state: { role, difficulty, interviewType },
+      })
+    }
+
   }
 
   const filteredRoles = ROLES.filter((r) =>
     r.value.toLowerCase().includes(search.toLowerCase())
   );
+
+
 
   return (
     <div className="min-h-screen bg-dark-900 relative overflow-hidden">
@@ -80,7 +90,7 @@ export default function Home() {
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-12 sm:py-20">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 glass-card px-4 py-2 mb-6 text-sm text-violet-300">
             <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
             AI-Powered Technical Interview Simulator
@@ -94,8 +104,54 @@ export default function Home() {
           </p>
         </div>
 
+        {/* AI Hiring Coach — mode selector */}
+        <div className="glass-card p-5 mb-6">
+          <p className="text-white/60 text-xs font-medium uppercase tracking-wider mb-4 text-center">
+            AI Hiring Coach — Choose Your Mode
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Resume mode */}
+            <button
+              onClick={() => navigate('/resume')}
+              className="flex flex-col items-start gap-3 p-4 rounded-xl border border-violet-500/30 bg-violet-500/8 hover:border-violet-400/60 hover:bg-violet-500/15 transition-all duration-200 text-left group"
+            >
+              <div className="w-9 h-9 rounded-lg bg-violet-500/20 flex items-center justify-center group-hover:bg-violet-500/30 transition-colors">
+                <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">Upload Resume & Analyze</p>
+                <p className="text-white/40 text-xs mt-0.5 leading-snug">
+                  AI scores your resume, extracts skills, and builds a personalized interview
+                </p>
+              </div>
+            </button>
+
+            {/* Role-based mode — scrolls down to the form */}
+            <button
+              onClick={() => document.getElementById('role-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex flex-col items-start gap-3 p-4 rounded-xl border border-violet-500/30 bg-violet-500/8 hover:border-violet-400/60 hover:bg-violet-500/15 transition-all duration-200 text-left group"
+            >
+              <div className="w-9 h-9 rounded-lg bg-white/8 flex items-center justify-center group-hover:bg-white/12 transition-colors">
+                <svg className="w-5 h-5 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-white/80 font-semibold text-sm">Start Interview by Role</p>
+                <p className="text-white/40 text-xs mt-0.5 leading-snug">
+                  Pick a job title and get questions tailored to that role
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
         {/* Setup form */}
-        <div className="glass-card p-6 sm:p-8 space-y-8">
+        <div id="role-form" className="glass-card p-6 sm:p-8 space-y-8">
           {/* Role selection */}
           <div>
             <label className="block text-white/70 text-sm font-medium mb-3">
@@ -106,6 +162,7 @@ export default function Home() {
             <div className="relative mb-4">
               <input
                 type="text"
+                required
                 placeholder="Search or type your role..."
                 value={search}
                 onChange={(e) => {
