@@ -19,10 +19,6 @@ export default function ResumeInterviewButton({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-
-  console.log(error, "ddd");
-
-
   async function handleStart() {
     if (!skills?.length) {
       setError('No skills detected. Please upload and analyze your resume first.')
@@ -41,10 +37,8 @@ export default function ResumeInterviewButton({
         num_questions: 5,
       })
 
-      // Navigate to the existing Interview page with pre-loaded data
       navigate('/interview', {
         state: {
-          // Pre-loaded session data — Interview.jsx will use these directly
           preloadedSession: {
             session_id: data.session_id,
             questions: data.questions,
@@ -62,23 +56,25 @@ export default function ResumeInterviewButton({
     }
   }
 
+  const isDisabled = disabled || isLoading || !skills?.length
+
   return (
     <div className="w-full">
       <button
         onClick={handleStart}
-        disabled={disabled || isLoading || !skills?.length}
-        className={`
-          w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl
-          font-semibold text-sm transition-all duration-200
-          ${disabled || !skills?.length
-            ? 'bg-white/5 text-white/30 cursor-not-allowed border border-white/10'
-            : 'btn-primary'
-          }
-        `}
+        disabled={isDisabled}
+        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold text-sm transition-all duration-200"
+        style={isDisabled
+          ? { background: 'rgba(0,0,0,0.06)', color: '#9E9189', border: '1px solid rgba(0,0,0,0.08)', cursor: 'not-allowed' }
+          : { background: '#C45C1A', color: '#ffffff', boxShadow: '0 4px 14px rgba(196,92,26,0.32)' }
+        }
+        onMouseEnter={e => { if (!isDisabled) e.currentTarget.style.background = '#A84D16' }}
+        onMouseLeave={e => { if (!isDisabled) e.currentTarget.style.background = '#C45C1A' }}
       >
         {isLoading ? (
           <>
-            <div className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+            <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin"
+              style={{ borderColor: 'rgba(255,255,255,0.4)', borderTopColor: '#ffffff' }} />
             <span>Generating questions...</span>
           </>
         ) : (
@@ -93,7 +89,7 @@ export default function ResumeInterviewButton({
       </button>
 
       {error && (
-        <p className="mt-2 text-red-400 text-xs text-center">{error}</p>
+        <p className="mt-2 text-xs text-center" style={{ color: '#dc2626' }}>{error}</p>
       )}
     </div>
   )

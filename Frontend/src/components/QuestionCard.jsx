@@ -1,48 +1,41 @@
 /**
  * QuestionCard — shows current question number and progress bar.
- * Displayed at the top of the Interview page.
  */
 
-/**
- * @param {{ current: number, total: number, role: string, difficulty: string }} props
- */
 export default function QuestionCard({ current, total, role, difficulty }) {
-  const progress = total > 0 ? ((current) / total) * 100 : 0
+  const progress = total > 0 ? (current / total) * 100 : 0
 
-  const difficultyColors = {
-    Easy: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-    Medium: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
-    Hard: 'text-red-400 bg-red-500/10 border-red-500/20',
+  const difficultyStyles = {
+    Easy:   { background: 'rgba(22,163,74,0.1)',   color: '#16a34a', border: '1px solid rgba(22,163,74,0.25)' },
+    Medium: { background: 'rgba(217,119,6,0.1)',   color: '#d97706', border: '1px solid rgba(217,119,6,0.25)' },
+    Hard:   { background: 'rgba(220,38,38,0.1)',   color: '#dc2626', border: '1px solid rgba(220,38,38,0.25)' },
   }
 
   return (
     <div className="glass-card px-4 py-3">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          {/* Role badge */}
-          <span className="text-sm font-medium text-white/80">{role}</span>
-          <span className="text-white/20">·</span>
-          {/* Difficulty badge */}
-          <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${difficultyColors[difficulty] || difficultyColors.Medium}`}>
+          <span className="text-sm font-medium" style={{ color: '#1C1410' }}>{role}</span>
+          <span style={{ color: '#C5BAB2' }}>·</span>
+          <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+            style={difficultyStyles[difficulty] || difficultyStyles.Medium}>
             {difficulty}
           </span>
         </div>
-
-        {/* Question counter */}
-        <span className="text-sm text-white/50">
+        <span className="text-sm" style={{ color: '#6B6358' }}>
           {current < total ? (
-            <span>Question <span className="text-white font-semibold">{current + 1}</span> of {total}</span>
+            <span>Question <span className="font-semibold" style={{ color: '#1C1410' }}>{current + 1}</span> of {total}</span>
           ) : (
-            <span className="text-violet-400 font-medium">All done!</span>
+            <span className="font-medium" style={{ color: '#C45C1A' }}>All done!</span>
           )}
         </span>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+      <div className="w-full rounded-full h-1.5 overflow-hidden" style={{ background: 'rgba(0,0,0,0.08)' }}>
         <div
-          className="h-full bg-gradient-to-r from-violet-500 to-cyan-500 rounded-full transition-all duration-700 ease-out"
-          style={{ width: `${progress}%` }}
+          className="h-full rounded-full transition-all duration-700 ease-out"
+          style={{ width: `${progress}%`, background: '#C45C1A' }}
         />
       </div>
     </div>

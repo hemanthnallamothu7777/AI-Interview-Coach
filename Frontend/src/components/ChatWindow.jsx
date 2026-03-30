@@ -1,39 +1,34 @@
 /**
  * ChatWindow — renders the conversation between the AI interviewer and the candidate.
- * Supports three message types: 'ai', 'user', and 'evaluation'.
- * Auto-scrolls to the latest message.
  */
 
 import { useEffect, useRef } from 'react'
 import ScoreCard from './ScoreCard'
 
-// Avatar icons as inline SVG for zero dependencies
 const AIAvatar = () => (
-  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-violet-900/40">
+  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+    style={{ background: '#C45C1A', boxShadow: '0 2px 8px rgba(196,92,26,0.35)' }}>
     AI
   </div>
 )
 
 const UserAvatar = () => (
-  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white text-xs font-bold">
+  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+    style={{ background: '#1C1410', color: '#F9F6F1' }}>
     You
   </div>
 )
 
-/**
- * @param {{ messages: Array<{ id: string, type: 'ai'|'user'|'evaluation', content: string, data?: object }>, isTyping: boolean }} props
- */
 export default function ChatWindow({ messages, isTyping }) {
   const bottomRef = useRef(null)
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-white/30">
+      <div className="flex-1 flex items-center justify-center" style={{ color: '#9E9189' }}>
         <p className="text-sm">Your interview will start here...</p>
       </div>
     )
@@ -59,7 +54,7 @@ export default function ChatWindow({ messages, isTyping }) {
               <AIAvatar />
               <div className="flex-1 max-w-[85%]">
                 <div className="glass-card p-4 rounded-2xl rounded-tl-sm">
-                  <p className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: '#1C1410' }}>
                     {msg.content}
                   </p>
                 </div>
@@ -73,8 +68,9 @@ export default function ChatWindow({ messages, isTyping }) {
             <div key={msg.id} className="flex gap-3 flex-row-reverse animate-slide-up">
               <UserAvatar />
               <div className="flex-1 max-w-[85%] flex justify-end">
-                <div className="bg-violet-600/30 border border-violet-500/20 rounded-2xl rounded-tr-sm p-4 max-w-full">
-                  <p className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap">
+                <div className="rounded-2xl rounded-tr-sm p-4 max-w-full"
+                  style={{ background: '#1C1410', border: '1px solid rgba(0,0,0,0.15)' }}>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: '#F9F6F1' }}>
                     {msg.content}
                   </p>
                 </div>
@@ -92,12 +88,12 @@ export default function ChatWindow({ messages, isTyping }) {
           <AIAvatar />
           <div className="glass-card px-5 py-4 rounded-2xl rounded-tl-sm">
             <div className="flex gap-1.5 items-center">
-              <span className="text-white/40 text-xs mr-1">AI is thinking</span>
+              <span className="text-xs mr-1" style={{ color: '#9E9189' }}>AI is thinking</span>
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce"
-                  style={{ animationDelay: `${i * 150}ms` }}
+                  className="w-1.5 h-1.5 rounded-full animate-bounce"
+                  style={{ background: '#C45C1A', animationDelay: `${i * 150}ms` }}
                 />
               ))}
             </div>
@@ -105,7 +101,6 @@ export default function ChatWindow({ messages, isTyping }) {
         </div>
       )}
 
-      {/* Scroll anchor */}
       <div ref={bottomRef} />
     </div>
   )

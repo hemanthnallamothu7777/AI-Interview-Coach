@@ -8,8 +8,12 @@ from typing import List
 from models.resume_models import Project
 
 
+import random
+from datetime import datetime
+
 def get_question_generation_prompt(role: str, difficulty: str, num_questions: int = 5) -> str:
     """Generate a prompt for creating interview questions."""
+    
     difficulty_context = {
         "Easy": "fundamentals, basic concepts, and entry-level knowledge",
         "Medium": "intermediate concepts, practical experience, and moderate problem-solving",
@@ -17,17 +21,55 @@ def get_question_generation_prompt(role: str, difficulty: str, num_questions: in
     }
     context = difficulty_context.get(difficulty, "intermediate topics")
 
+    # Force variety by randomly picking a focus angle each call
+    question_angles = [
+        "debugging and troubleshooting real-world issues",
+        "system design and architecture decisions",
+        "performance optimization and scalability",
+        "security best practices and edge cases",
+        "testing strategies and code quality",
+        "team collaboration, code reviews, and engineering culture",
+        "trade-offs between different technical approaches",
+        "recent trends and modern tooling in the field",
+        "handling failure scenarios and resilience",
+        "data modeling and API design",
+    ]
+
+    question_types = [
+        "scenario-based ('You are given a codebase that...')",
+        "opinion-based ('What is your take on...')",
+        "compare-and-contrast ('What are the differences between X and Y')",
+        "open-ended design ('How would you architect...')",
+        "past experience ('Tell me about a time when...')",
+        "hypothetical ('Imagine your app suddenly gets 10x traffic...')",
+    ]
+
+    # Pick a random seed subset so each call feels fresh
+    selected_angles = random.sample(question_angles, k=min(3, len(question_angles)))
+    selected_types = random.sample(question_types, k=min(3, len(question_types)))
+    entropy_seed = random.randint(1000, 9999)  # makes the model treat each call as unique
+
     return f"""You are an expert technical interviewer hiring for a {role} position.
 
 Generate exactly {num_questions} technical interview questions for a {difficulty} difficulty level.
 The questions should focus on: {context}
 
+This is interview session #{entropy_seed}. Every session must have COMPLETELY DIFFERENT questions — 
+never repeat questions from previous sessions.
+
+Angle these questions around these themes (be creative, don't stick to obvious topics):
+{chr(10).join(f'- {a}' for a in selected_angles)}
+
+Use a variety of these question formats (mix them up):
+{chr(10).join(f'- {t}' for t in selected_types)}
+
 Requirements:
-- Questions must be specific and relevant to {role}
-- Include a mix of: conceptual understanding, practical application, and problem-solving
+- Questions must be specific and relevant to {role} — avoid generic software engineering questions
+- NO questions about: basic definitions, syntax, or "what is X" unless framed as a deep dive
 - Each question should be clear, concise, and answerable in 2-5 minutes verbally
 - For Hard difficulty, include at least one system design or architecture question
 - Do NOT number the questions
+- Do NOT reuse common interview clichés (no "explain the virtual DOM", no "what is a closure")
 
 Return ONLY a valid JSON object in this exact format (no other text):
 {{"questions": ["Question 1?", "Question 2?", "Question 3?", "Question 4?", "Question 5?"]}}"""

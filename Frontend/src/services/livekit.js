@@ -12,6 +12,8 @@ import { Room, RoomEvent, Track, createLocalAudioTrack } from 'livekit-client'
 
 let room = null
 let recognition = null
+let _manualStop = false
+
 
 /** Connect to a LiveKit room as a participant. */
 export async function connectToRoom(url, token, onParticipantConnected) {
@@ -49,12 +51,17 @@ export async function disconnectFromRoom() {
   }
 }
 
+
 /**
  * Start speech recognition using the Web Speech API.
- * Calls onResult(transcript) when speech is detected.
- * Calls onEnd() when the user stops speaking.
+ * Stays alive indefinitely — restarts automatically on pause.
+ * Auto-stops only via stopSpeechRecognition() or 60 s silence (handled in VoiceControls).
+ *
+ * @param {function} onInterim(liveText)         - Called on every partial result
+ * @param {function} onSegmentFinal(segmentText) - Called when a speech chunk is committed
+ * @param {function} onError(message)            - Called on real errors (not 'no-speech')
  */
-export function startSpeechRecognition(onResult, onEnd, onError) {
+export function startSpeechRecognition(onInterim, onSegmentFinal, onError) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
   if (!SpeechRecognition) {
@@ -62,49 +69,65 @@ export function startSpeechRecognition(onResult, onEnd, onError) {
     return null
   }
 
-  recognition = new SpeechRecognition()
-  recognition.lang = 'en-US'
-  recognition.interimResults = true     // show partial results while speaking
-  recognition.continuous = false        // stop after a pause
-  recognition.maxAlternatives = 1
+  _manualStop = false
 
-  let finalTranscript = ''
+  function createAndStart() {
+    recognition = new SpeechRecognition()
+    recognition.lang = 'en-US'
+    recognition.interimResults = true   // live partial results while speaking
+    recognition.continuous = true       // don't auto-stop mid-sentence
+    recognition.maxAlternatives = 1
 
-  recognition.onresult = (event) => {
-    let interim = ''
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const transcript = event.results[i][0].transcript
-      if (event.results[i].isFinal) {
-        finalTranscript += transcript + ' '
+    recognition.onresult = (event) => {
+      let interim = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          if (onSegmentFinal) onSegmentFinal(transcript)
+        } else {
+          interim += transcript
+        }
+      }
+      if (interim && onInterim) onInterim(interim)
+    }
+
+    recognition.onerror = (event) => {
+      console.error('[SpeechRecognition] Error:', event.error)
+      // 'no-speech' fires when the browser detects a pause — not a real error,
+      // onend will restart it automatically so we just ignore it here
+      if (event.error === 'no-speech') return
+      if (onError) onError(`Speech recognition error: ${event.error}`)
+    }
+
+    recognition.onend = () => {
+      // Browser stopped (pause, timeout, etc.) — restart unless manually stopped
+      if (!_manualStop) {
+        try {
+          recognition.start()
+        } catch (_) {
+          // Race condition: recognition already restarting, safe to ignore
+        }
       } else {
-        interim += transcript
+        recognition = null
       }
     }
-    // Send combined interim result for live display
-    if (onResult) onResult(finalTranscript + interim, finalTranscript)
+
+    recognition.start()
   }
 
-  recognition.onend = () => {
-    if (onEnd) onEnd(finalTranscript.trim())
-    recognition = null
-  }
-
-  recognition.onerror = (event) => {
-    console.error('[SpeechRecognition] Error:', event.error)
-    if (onError) onError(`Speech recognition error: ${event.error}`)
-    recognition = null
-  }
-
-  recognition.start()
-  return recognition
+  createAndStart()
 }
 
-/** Stop active speech recognition. */
+/** Stop active speech recognition. Sets the manual-stop flag so onend won't restart. */
 export function stopSpeechRecognition() {
+  _manualStop = true
   if (recognition) {
     recognition.stop()
+    // recognition = null is set inside onend after the stop completes
   }
 }
+
+// ─── Your existing functions below — unchanged ────────────────────────────────
 
 /**
  * Speak text aloud using the browser's text-to-speech engine.
@@ -112,7 +135,6 @@ export function stopSpeechRecognition() {
  * @param {function} onEnd - Called when speech finishes
  */
 export function speakText(text, onEnd) {
-  // Cancel any ongoing speech first
   window.speechSynthesis.cancel()
 
   const utterance = new SpeechSynthesisUtterance(text)
@@ -120,7 +142,6 @@ export function speakText(text, onEnd) {
   utterance.pitch = 1.0
   utterance.volume = 1.0
 
-  // Prefer a natural English voice if available
   const voices = window.speechSynthesis.getVoices()
   const preferred = voices.find(
     (v) => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural'))
