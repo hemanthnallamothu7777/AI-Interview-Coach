@@ -7,7 +7,8 @@ In production, replace with Redis or a database.
 
 import uuid
 import json
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, Depends
+from routes.auth import get_current_user
 from typing import Dict
 
 from models.interview_models import (
@@ -29,7 +30,7 @@ sessions: Dict[str, dict] = {}
 
 
 @router.post("/start", response_model=InterviewStartResponse)
-async def start_interview(request: InterviewStartRequest):
+async def start_interview(request: InterviewStartRequest, current_user: dict = Depends(get_current_user)):
     """
     Start a new interview session.
     Generates AI questions and optionally sets up a LiveKit voice room.
@@ -80,7 +81,7 @@ async def start_interview(request: InterviewStartRequest):
 
 
 @router.post("/evaluate", response_model=EvaluationResponse)
-async def evaluate_answer_endpoint(request: AnswerSubmitRequest):
+async def evaluate_answer_endpoint(request: AnswerSubmitRequest, current_user: dict = Depends(get_current_user)):
     """
     Evaluate a candidate's answer to a specific question.
     Stores the evaluation in the session for the final report.
@@ -111,7 +112,7 @@ async def evaluate_answer_endpoint(request: AnswerSubmitRequest):
 
 
 @router.post("/livekit-token", response_model=LiveKitTokenResponse)
-async def get_livekit_token(request: LiveKitTokenRequest):
+async def get_livekit_token(request: LiveKitTokenRequest, current_user: dict = Depends(get_current_user)):
     """Generate a LiveKit access token for joining a voice room."""
     if not is_livekit_configured():
         raise HTTPException(
@@ -126,7 +127,7 @@ async def get_livekit_token(request: LiveKitTokenRequest):
 
 
 @router.get("/session/{session_id}")
-async def get_session(session_id: str):
+async def get_session(session_id: str, current_user: dict = Depends(get_current_user)):
     """Retrieve current session state (useful for reconnection)."""
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")

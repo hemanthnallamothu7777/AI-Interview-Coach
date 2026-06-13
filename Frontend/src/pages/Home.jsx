@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import UserProfileMenu from '../components/UserProfileMenu'
 
 const ROLES = [
   { value: "React Developer", icon: "⚛️" },
@@ -101,9 +102,12 @@ export default function Home() {
               Back to home
             </button>
 
-            <div className="inline-flex items-center gap-2 glass-card px-4 py-2  text-sm" style={{ color: '#C45C1A' }}>
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#C45C1A' }} />
-              AI-Powered Technical Interview Simulator
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 glass-card px-4 py-2 text-sm" style={{ color: '#C45C1A' }}>
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#C45C1A' }} />
+                AI-Powered Technical Interview Simulator
+              </div>
+              <UserProfileMenu />
             </div>
           </div>
 

@@ -4,6 +4,7 @@
 
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import UserProfileMenu from '../components/UserProfileMenu'
 
 function scoreTheme(score) {
   if (score >= 8) return { stroke: '#16a34a', text: '#16a34a', badge: { background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.25)' }, label: 'Excellent' }
@@ -95,7 +96,10 @@ export default function Results() {
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-10 space-y-6">
 
         {/* ── Header ──────────────────────────────────────────────────── */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 relative">
+          <div className="absolute right-0 top-0">
+            <UserProfileMenu />
+          </div>
           <div className="inline-flex items-center gap-2 glass-card px-4 py-2 text-sm mb-2" style={{ color: '#C45C1A' }}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

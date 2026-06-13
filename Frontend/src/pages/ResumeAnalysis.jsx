@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import UserProfileMenu from '../components/UserProfileMenu'
 import ResumeUpload from '../components/ResumeUpload'
 import ResumeScore from '../components/ResumeScore'
 import SkillList from '../components/SkillList'
@@ -70,7 +71,8 @@ export default function ResumeAnalysis() {
             Back
           </button>
           <div className="flex-1 h-px" style={{ background: 'rgba(0,0,0,0.08)' }} />
-          <span className="text-xs" style={{ color: '#9E9189' }}>AI Resume Analyzer</span>
+          <span className="text-xs mr-2" style={{ color: '#9E9189' }}>AI Resume Analyzer</span>
+          <UserProfileMenu />
         </div>
 
         {/* Header */}

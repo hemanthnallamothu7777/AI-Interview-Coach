@@ -2,7 +2,8 @@
 Evaluation routes — handles final report generation and standalone answer evaluation.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from routes.auth import get_current_user
 
 from models.interview_models import (
     FinalReportRequest,
@@ -15,7 +16,7 @@ router = APIRouter(tags=["evaluation"])
 
 
 @router.post("/report", response_model=FinalReportResponse)
-async def generate_report(request: FinalReportRequest):
+async def generate_report(request: FinalReportRequest, current_user: dict = Depends(get_current_user)):
     """
     Generate a comprehensive final interview report.
     Accepts all Q&A evaluations and returns overall score, strengths, weaknesses, and plan.
@@ -42,7 +43,7 @@ async def generate_report(request: FinalReportRequest):
 
 
 @router.post("/quick-evaluate", response_model=EvaluationResponse)
-async def quick_evaluate(question: str, answer: str, role: str):
+async def quick_evaluate(question: str, answer: str, role: str, current_user: dict = Depends(get_current_user)):
     """
     Evaluate a single answer without a session — useful for testing or standalone feedback.
     """

@@ -138,43 +138,51 @@ Return ONLY a valid JSON object in this exact format (no other text):
 
 
 def get_resume_analysis_prompt(resume_text: str) -> str:
-    """Prompt for full resume analysis — returns structured JSON with score, skills, etc."""
+    """Prompt for full resume analysis — returns structured JSON with score, validation state, etc."""
     return f"""You are an expert technical recruiter and career coach with 10+ years of experience
 evaluating software engineering resumes.
 
-Analyze the following resume and provide a comprehensive evaluation.
+First, perform a strict validation of the uploaded document to check if it is actually a candidate's resume/CV. 
+A valid resume must contain personal information (like a name) and at least some professional background details (like work history, education, or personal projects).
+If the text is NOT a valid resume (for example: it is a random project specification document, API documentation, raw code snippets, system logs, a textbook chapter, a recipe, or random text), set "is_valid_resume" to false.
 
-RESUME TEXT:
+Analyze the following text:
+
+TEXT TO ANALYZE:
 ---
 {resume_text}
 ---
 
 Evaluate and return a JSON object with these exact fields:
 
-1. score (integer 0-100): Overall resume quality score based on:
+1. is_valid_resume (boolean): True if this is a valid candidate resume/CV, False if it is not.
+
+2. validation_error (string or null): If is_valid_resume is false, write a witty, sarcastic, and humorous error message pointing out exactly what is wrong with their document (e.g., that it looks like a project requirements document, a grocery list, or raw code) and ask them to upload a correct, valid resume document. Be playful but clear. If is_valid_resume is true, this field must be null.
+
+3. score (integer 0-100): Overall resume quality score (set to 0 if is_valid_resume is false) based on:
    - Clarity and structure (20 pts)
    - Technical skills breadth and depth (30 pts)
    - Work experience relevance (30 pts)
    - Achievements/impact (20 pts)
 
-2. skills (array of strings): ALL technical skills found — programming languages,
+4. skills (array of strings): ALL technical skills found (empty if invalid) — programming languages,
    frameworks, libraries, tools, platforms, databases, cloud services, methodologies.
    Include ONLY concrete technical items (not soft skills like "communication").
    Examples: "React", "Node.js", "Docker", "AWS", "PostgreSQL", "REST APIs", "Git"
 
-3. experience_level (string): One of exactly: "Entry-level", "Mid-level", "Senior", "Lead/Principal"
+5. experience_level (string): One of exactly: "Entry-level", "Mid-level", "Senior", "Lead/Principal" (use "Entry-level" if invalid).
    Infer from years of experience, seniority of roles, and complexity of projects.
 
-4. strengths (array of 3-5 strings): Specific strengths observed in this resume.
+6. strengths (array of 3-5 strings): Specific strengths observed in this resume (empty if invalid).
    Be concrete, referencing actual content from the resume.
 
-5. missing_skills (array of strings): Important skills commonly expected for this
-   experience level/role that appear absent from the resume.
+7. missing_skills (array of strings): Important skills commonly expected for this
+   experience level/role that appear absent from the resume (empty if invalid).
 
-6. improvements (array of 3-5 strings): Specific, actionable suggestions to improve
-   this resume. Reference actual gaps or issues found.
+8. improvements (array of 3-5 strings): Specific, actionable suggestions to improve
+   this resume (empty if invalid). Reference actual gaps or issues found.
    
-7. projects (array of objects): Extract ALL projects (both personal and professional work).
+9. projects (array of objects): Extract ALL projects (both personal and professional work, empty if invalid).
 
 Include projects from:
 Projects section
@@ -192,12 +200,14 @@ technologies (array of strings): Tech stack used (if mentioned)
 
 Return ONLY a valid JSON object (no other text):
 {{
+    "is_valid_resume": <true|false>,
+    "validation_error": "<sarcastic error message or null>",
     "score": <integer 0-100>,
     "skills": ["skill1", "skill2", ...],
     "experience_level": "<Entry-level|Mid-level|Senior|Lead/Principal>",
     "strengths": ["strength1", "strength2", ...],
     "missing_skills": ["missing1", "missing2", ...],
-    "improvements": ["improvement1", "improvement2", ...]
+    "improvements": ["improvement1", "improvement2", ...],
     "projects": [
         {{
             "name": "Project Name",

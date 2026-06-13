@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import UserProfileMenu from '../components/UserProfileMenu'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { TextPlugin } from 'gsap/TextPlugin'
@@ -95,6 +97,7 @@ const C = {
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const navRef = useRef(null)
@@ -371,15 +374,30 @@ export default function LandingPage() {
             >
               Upload Resume
             </button>
-            <button
-              onClick={() => navigate('/app')}
-              className="mag-btn px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200"
-              style={{ background: C.accent, boxShadow: '0 4px 16px rgba(196,92,26,0.32)' }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 22px rgba(196,92,26,0.45)'}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(196,92,26,0.32)'}
-            >
-              Start Free →
-            </button>
+            {isAuthenticated ? (
+              <>
+                <button
+                  onClick={() => navigate('/app')}
+                  className="mag-btn px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200"
+                  style={{ background: C.accent, boxShadow: '0 4px 16px rgba(196,92,26,0.32)' }}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 22px rgba(196,92,26,0.45)'}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(196,92,26,0.32)'}
+                >
+                  Dashboard
+                </button>
+                <UserProfileMenu />
+              </>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="mag-btn px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200"
+                style={{ background: C.accent, boxShadow: '0 4px 16px rgba(196,92,26,0.32)' }}
+                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 22px rgba(196,92,26,0.45)'}
+                onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(196,92,26,0.32)'}
+              >
+                Sign In / Sign Up
+              </button>
+            )}
           </div>
         </div>
       </nav>

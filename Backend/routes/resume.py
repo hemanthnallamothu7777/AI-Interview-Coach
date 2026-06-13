@@ -8,7 +8,8 @@ Endpoints:
 """
 
 import uuid
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from routes.auth import get_current_user
 
 from services.resume_parser import parse_resume
 from services.resume_analyzer import analyze_resume
@@ -32,7 +33,7 @@ resume_sessions: dict = {}
 
 
 @router.post("/upload")
-async def upload_resume(file: UploadFile = File(...)):
+async def upload_resume(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     """
     Upload a PDF or DOCX resume file.
     Parses the file and returns the extracted text + detected skills.
@@ -59,7 +60,7 @@ async def upload_resume(file: UploadFile = File(...)):
 
 
 @router.post("/analyze", response_model=ResumeAnalysis)
-async def analyze_resume_endpoint(request: ResumeAnalyzeRequest):
+async def analyze_resume_endpoint(request: ResumeAnalyzeRequest, current_user: dict = Depends(get_current_user)):
     """
     Analyze extracted resume text using AI.
     Returns a structured report with score, skills, strengths, and improvements.
@@ -72,12 +73,18 @@ async def analyze_resume_endpoint(request: ResumeAnalyzeRequest):
             detail="Resume text is too short. Please upload a valid resume.",
         )
 
-    analysis = await analyze_resume(request.text)
-    return analysis
+    try:
+        analysis = await analyze_resume(request.text)
+        return analysis
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
 
 
 @router.post("/questions", response_model=ResumeQuestionsResponse)
-async def generate_resume_questions(request: ResumeQuestionsRequest):
+async def generate_resume_questions(request: ResumeQuestionsRequest, current_user: dict = Depends(get_current_user)):
     """
     Generate technical interview questions tailored to the candidate's extracted skills.
     Creates a session that integrates with the existing /interview/evaluate endpoint.

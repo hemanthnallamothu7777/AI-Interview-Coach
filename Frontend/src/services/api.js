@@ -13,6 +13,18 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+// Automatically attach authorization header
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (err) => Promise.reject(err)
+)
+
 // Log errors in development
 api.interceptors.response.use(
   (res) => res,

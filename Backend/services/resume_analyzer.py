@@ -32,11 +32,15 @@ async def analyze_resume(text: str) -> ResumeAnalysis:
     content = response.choices[0].message.content
     data = json.loads(content)
 
+    if not data.get("is_valid_resume", True):
+        err_msg = data.get("validation_error") or "This does not look like a valid resume. Please upload a correct document."
+        raise ValueError(err_msg)
+
     return ResumeAnalysis(
         score=int(data.get("score", 50)),
         skills=data.get("skills", []),
         experience_level=data.get("experience_level", "Mid-level"),
-        projects=data.get("projects",[]),
+        projects=data.get("projects", []),
         strengths=data.get("strengths", []),
         missing_skills=data.get("missing_skills", []),
         improvements=data.get("improvements", []),
